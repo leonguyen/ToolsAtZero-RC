@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: toolsatzero
+    env: docker
+    plan: free # Can be updated to starter/standard depending on your needs
+    region: oregon # Change to your preferred Render region
+    numInstances: 1
+    healthCheckPath: /
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
