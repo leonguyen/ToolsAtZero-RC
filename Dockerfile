@@ -2,34 +2,35 @@
 FROM node:18-alpine AS builder
 WORKDIR /app
 
-# Copy package management definitions
 COPY package*.json ./
-
-# Install all dependencies (including devDeps needed for building)
 RUN npm ci
-
-# Copy the rest of the source files
 COPY . .
 
-# Disable Next.js telemetry during build (optional)
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Run the next build export
+# Compile and statically export the application to the /app/out folder
 RUN npm run build
 
 # --- Stage 2: Serve using Nginx ---
 FROM nginx:alpine AS runner
-WORKDIR /usr/share/nginx/html
 
-# Clean the default Nginx public files
+# Create a custom Nginx configuration to support client-side routing
+RUN echo 'server { \
+    listen 80; \
+    location / { \
+        root /usr/share/nginx/html; \
+        index index.html index.htm; \
+        try_files $uri $uri/ /index.html; \
+    } \
+}' > /etc/nginx/conf.d/default.conf
+
+WORKDIR /usr/share/nginx/html
 RUN rm -rf ./*
 
-# Copy the statically exported build from Stage 1 
-# Note: Next.js outputs standard static builds to the "out" directory
+# Copy the exported static build from Stage 1
 COPY --from=builder /app/out ./
 
-# Expose port 80 for Render routing
 EXPOSE 80
 
-# Start Nginx in the foreground
 CMD ["nginx", "-g", "daemon off;"]
+
