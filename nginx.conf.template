@@ -1,0 +1,17 @@
+server {
+    listen       ${PORT};
+    server_name  _;
+    root   /usr/share/nginx/html;
+    index  index.html;
+
+    location / {
+        try_files $uri $uri.html $uri/ /index.html;
+    }
+
+    error_page 404 /404.html;
+
+    location ~* \.(?:js|css|woff2?|ttf|svg|png|jpg|jpeg|gif|ico|wasm|onnx)$ {
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+    }
+}
