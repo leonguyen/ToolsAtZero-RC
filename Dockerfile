@@ -6,7 +6,12 @@ FROM node:20-bookworm-slim AS builder
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
-RUN npm ci --loglevel=verbose
+# Using `npm install` instead of `npm ci`: the repo's package-lock.json
+# is currently out of sync with package.json (missing @emnapi/* entries
+# pulled in by @huggingface/transformers), which npm ci refuses to
+# tolerate. If you regenerate the lockfile in the repo (see chat), you
+# can switch this back to `npm ci` for reproducible installs.
+RUN npm install
 
 COPY . .
 
