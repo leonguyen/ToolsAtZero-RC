@@ -1,9 +1,12 @@
 # ---- Build stage ----
-FROM node:20-alpine AS builder
+# Using the Debian-based image (not alpine) because this project pulls in
+# @huggingface/transformers -> onnxruntime-node, which ships prebuilt
+# binaries for glibc and can fail to install on musl-based Alpine.
+FROM node:20-bookworm-slim AS builder
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
-RUN npm ci
+RUN npm ci --loglevel=verbose
 
 COPY . .
 
