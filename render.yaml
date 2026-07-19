@@ -3,6 +3,7 @@ services:
     name: toolsatzero
     env: docker
     plan: free
-    region: oregon
-    numInstances: 1
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    autoDeploy: true
     healthCheckPath: /
